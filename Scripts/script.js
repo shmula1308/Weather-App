@@ -88,8 +88,12 @@ function getWeatherData(city) {
         })
         .then(data => {
             let cityData = new CityWeatherData(data.name, data.id, data.weather[0].icon, data.main.temp, data.main.feels_like, data.weather[0].description, data.main.temp_min, data.main.temp_max, data.wind.speed, data.sys.sunset, data.sys.sunrise, data.main.humidity, data.main.pressure, data.visibility, data.clouds.all, data.coord.lon, data.coord.lat, data.timezone);
-            console.log(data);
-            console.log(cityData);
+            console.log(temp.unit);
+            console.log(cityData.currentTemp);
+            if (temp.unit === "farenheit") {
+                cityData.currentTemp = (cityData.currentTemp * 9 / 5) + 32;
+            }
+
             citiesData.push(cityData);
             localStorage.setItem('cityData', JSON.stringify(citiesData));
 
@@ -133,7 +137,7 @@ function addToList(city) {
         <span>RealFeel</span><span class="realfeel-temp"> ${Math.floor(city.realFeel)} &#176;</span>
     </div>
     <div class="description">
-        ${changeCase(city.desc)}
+        ${city.desc}
     </div>
     <div class="chevron-down">
         <i class="fas fa-chevron-down"></i>
@@ -187,14 +191,7 @@ function addToList(city) {
 </div>`;
 
     weatherContainer.appendChild(cityDiv);
-
-
-
 }
-
-
-
-
 
 weatherContainer.addEventListener('click', (ev) => {
     if (ev.target.className === "fas fa-trash-alt trash") {
@@ -206,7 +203,6 @@ weatherContainer.addEventListener('click', (ev) => {
         localStorage.setItem('cityData', JSON.stringify(citiesData));
     }
 })
-
 
 
 function addZero(component) {
@@ -242,23 +238,27 @@ function generateCurrentTime(timezone) {
 
 let tempToggle = document.getElementById("temp-unit");
 tempToggle.addEventListener("click", () => {
-    // let cd = JSON.parse(localStorage.getItem("cityData"));
+    if (temp.unit === "celsius") {
+        temp.unit = "farenheit"
+    } else {
+        temp.unit = "celsius"
+    }
+
     citiesData = citiesData.map(city => {
         if (temp.unit === "celsius") {
-            temp.unit = "farenheit";
-            return { ...city, currentTemp: (city.currentTemp * 9 / 5) + 32 };
+            return { ...city, currentTemp: (city.currentTemp - 32) * (5 / 9) }
         } else {
-            temp.unit = "celsius"
-            return { ...city, currentTemp: (city.currentTemp - 32) * 5 / 9 };
+            return { ...city, currentTemp: (city.currentTemp * 9 / 5) + 32 };
         }
-
     })
+
     // localStorage.clear();
     localStorage.setItem('cityData', JSON.stringify(citiesData));
     weatherContainer.innerHTML = "";
     displayWeatherData()
-    console.log(citiesData)
+
 })
+
 
 
 function changeCase(weatherDesc) {
