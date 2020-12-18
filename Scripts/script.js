@@ -25,14 +25,23 @@ const API_KEY = "6fa6c814e35daf0c81290c089a499869";
 const searchInput = document.querySelector(".search-field");
 const weatherContainer = document.querySelector(".current-weather-container");
 const time = document.querySelector(".time");
+let tempToggle = document.getElementById("temp-unit");
 
 
 
 let citiesData = [];
+let tempUnit = [];
 
 let temp = {
     unit: "celsius"
 }
+
+let distance = {
+    unit: "km"
+}
+
+// tempUnit.push(temp);
+// localStorage.setItem('tempUnit', JSON.stringify(tempUnit));
 
 function CityWeatherData(name, id, icon, currentTemp, realFeel, desc, minTemp, maxTemp, wind, sunrise, sunset, humidity, pressure, visibility, cloudiness, lon, lat, timezone) {
     this.name = name;
@@ -59,9 +68,13 @@ function CityWeatherData(name, id, icon, currentTemp, realFeel, desc, minTemp, m
 document.addEventListener("DOMContentLoaded", () => {
     if (localStorage.getItem("cityData") === null) {
         citiesData = [];
-
     } else {
         citiesData = JSON.parse(localStorage.getItem("cityData"));
+    }
+    if (temp.unit === "farenheit") {
+        citiesData = citiesData.map(city => {
+            return { ...city, currentTemp: (city.currentTemp * 9 / 5) + 32, minTemp: (city.minTemp * 9 / 5) + 32, maxTemp: (city.maxTemp * 9 / 5) + 32, realFeel: (city.realFeel * 9 / 5) + 32, wind: city.wind * 1.609 };
+        })
     }
     displayWeatherData();
 })
@@ -88,10 +101,12 @@ function getWeatherData(city) {
         })
         .then(data => {
             let cityData = new CityWeatherData(data.name, data.id, data.weather[0].icon, data.main.temp, data.main.feels_like, data.weather[0].description, data.main.temp_min, data.main.temp_max, data.wind.speed, data.sys.sunset, data.sys.sunrise, data.main.humidity, data.main.pressure, data.visibility, data.clouds.all, data.coord.lon, data.coord.lat, data.timezone);
-            console.log(temp.unit);
-            console.log(cityData.currentTemp);
+
             if (temp.unit === "farenheit") {
                 cityData.currentTemp = (cityData.currentTemp * 9 / 5) + 32;
+                cityData.minTemp = (cityData.minTemp * 9 / 5) + 32;
+                cityData.maxTemp = (cityData.maxTemp * 9 / 5) + 32;
+                cityData.realFeel = (cityData.realFeel * 9 / 5) + 32;
             }
 
             citiesData.push(cityData);
@@ -116,7 +131,7 @@ function addToList(city) {
     cityDiv.style.backgroundColor = "#eee"
     cityDiv.id = city.id;
     cityDiv.style.marginBottom = "1em";
-
+    console.log(city)
     cityDiv.innerHTML = `
     <div class="accordion-header">
     <div class="remove-button" >
@@ -147,15 +162,15 @@ function addToList(city) {
     <div class="left-content">
         <div class="min-temp details-container">
             <span class="key">Min-temp</span>
-            <span class="value">${Math.floor(city.minTemp)} &#176;C</span>
+            <span class="value">${Math.floor(city.minTemp)} ${tempUnits(temp.unit)}</span>
         </div>
         <div class="max-temp details-container">
             <span class="key">Max-temp</span>
-            <span class="value">${Math.floor(city.maxTemp)}&#176;C</span>
+            <span class="value">${Math.floor(city.maxTemp)}${tempUnits(temp.unit)}</span>
         </div>
         <div class="wind details-container">
             <span class="key">Wind</span>
-            <span class="value">${city.wind} km/h</span>
+            <span class="value">${lengthValueWind(city.wind)} ${lengthUnits(temp.unit)}</span>
         </div>
         <div class="sunrise details-container">
             <span class="key">Sunrise</span>
@@ -177,7 +192,7 @@ function addToList(city) {
         </div>
         <div class="visibility details-container">
             <span class="key">Visibility</span>
-            <span class="value">${city.visibility / 1000} km</span>
+            <span class="value">${lengthValueVisibility(city.visibility)} ${lengthUnits(temp.unit)}</span>
         </div>
         <div class="cloudiness details-container">
             <span class="key">Cloudiness</span>
@@ -236,8 +251,9 @@ function generateCurrentTime(timezone) {
     convert to readable format */
 }
 
-let tempToggle = document.getElementById("temp-unit");
+
 tempToggle.addEventListener("click", () => {
+
     if (temp.unit === "celsius") {
         temp.unit = "farenheit"
     } else {
@@ -246,9 +262,9 @@ tempToggle.addEventListener("click", () => {
 
     citiesData = citiesData.map(city => {
         if (temp.unit === "celsius") {
-            return { ...city, currentTemp: (city.currentTemp - 32) * (5 / 9) }
+            return { ...city, currentTemp: (city.currentTemp - 32) * (5 / 9), minTemp: (city.minTemp - 32) * (5 / 9), maxTemp: (city.maxTemp - 32) * (5 / 9), realFeel: (city.realFeel - 32) * (5 / 9), wind: city.wind / 1.609 }
         } else {
-            return { ...city, currentTemp: (city.currentTemp * 9 / 5) + 32 };
+            return { ...city, currentTemp: (city.currentTemp * 9 / 5) + 32, minTemp: (city.minTemp * 9 / 5) + 32, maxTemp: (city.maxTemp * 9 / 5) + 32, realFeel: (city.realFeel * 9 / 5) + 32, wind: city.wind * 1.609 };
         }
     })
 
@@ -274,4 +290,38 @@ function getSunSet() {
     return;
 }
 
+function lengthValueVisibility(value) {
+    if (temp.unit === "celsius") {
+        return value / 1000;
+    } else {
+        return Math.floor((value / 1000) / 1.609);
+    }
+}
+
+function lengthValueWind(value) {
+    if (temp.unit === "farenheit") {
+        return Math.floor(value / 1.609);
+    } else {
+        return Math.floor(value * 1.609);
+
+
+    }
+
+}
+
+function lengthUnits(unit) {
+    if (unit === "celsius") {
+        return "km/h"
+    } else {
+        return "m/h"
+    }
+}
+
+function tempUnits(unit) {
+    if (unit === "celsius") {
+        return "&#176C"
+    } else {
+        return "&#176F"
+    }
+}
 
