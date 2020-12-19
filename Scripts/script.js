@@ -1,22 +1,15 @@
 /* Attempted to setup google search box and link it to openweather API but I was unable to setup billing because Kosovo does not appear in the list of country options
 The below code works though!
-
 const searchInput = document.querySelector(".search-field");
 const searchBox = new google.maps.places.SearchBox(searchInput);
-
-
 const API_KEY = "6fa6c814e35daf0c81290c089a499869";
-
 searchBox.addListener('places_changed', () => {
-
     const place = searchBox.getPlaces()[0];
     if (place === null) return;
     const latitude = place.geometry.location.lat();
     const longitude = place.geometry.location.lng();
-
     const uri = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`
     let req = new Request(uri, { method: 'GET' })
-
     fetch(req).then(res => res.json()).then(data => {
         setWeatherData(data, place.formatted_address);
     })
@@ -29,6 +22,7 @@ let tempToggle = document.getElementById("temp-unit");
 
 let citiesData = [];
 let tempUnit = [];
+let citiesDisplayed = [];
 
 let temp = {
     unit: "celsius",
@@ -65,11 +59,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (localStorage.getItem("cityData") === null) {
         citiesData = [];
+        citiesDisplayed = [];
     } else {
-        temp = JSON.parse(localStorage.getItem("tempObj"));
-        if (temp.checked === true)
-            tempToggle.checked = true;
+        citiesDisplayed = JSON.parse(localStorage.getItem("cityDisp"));
         citiesData = JSON.parse(localStorage.getItem("cityData"));
+        temp = JSON.parse(localStorage.getItem("tempObj"));
+        if (temp.checked === true) {
+            tempToggle.checked = true;
+        }
 
     }
     // if (temp.unit === "farenheit") {
@@ -84,8 +81,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 searchInput.addEventListener("keyup", (ev) => {
     if (ev.keyCode === 13) {
-        getWeatherData(searchInput.value);
-        searchInput.value = "";
+        if (citiesDisplayed.includes(searchInput.value.toLowerCase())) {
+            alert("City is already displayed on the screen");
+            searchInput.value = "";
+        } else {
+            citiesDisplayed.push(searchInput.value.toLowerCase())
+            localStorage.setItem('cityDisp', JSON.stringify(citiesDisplayed));
+            getWeatherData(searchInput.value);
+            searchInput.value = "";
+        }
     }
 })
 
@@ -138,7 +142,7 @@ function addToList(city) {
     cityDiv.innerHTML = `
     <div class="accordion-header">
     <div class="remove-button">
-        <i class="fas fa-trash-alt trash" id=${city.id}></i>
+        <i class="fas fa-trash-alt trash" id=${city.id} data-city=${city.name.toLowerCase()}></i>
     </div>
     <div class="location">
         <p class="time">${generateCurrentTime(city.timezone)}</p>
@@ -219,6 +223,9 @@ weatherContainer.addEventListener('click', (ev) => {
         tempCitiesData = citiesData.filter(obj => obj.id !== parseInt(id));
         citiesData = tempCitiesData;
         localStorage.setItem('cityData', JSON.stringify(citiesData));
+        let city = ev.target.getAttribute("data-city");
+        citiesDisplayed = citiesDisplayed.filter(c => c != city);
+        localStorage.setItem('cityDisp', JSON.stringify(citiesDisplayed));
     }
 })
 
@@ -329,4 +336,3 @@ function tempUnits(unit) {
         return "&#176F"
     }
 }
-
