@@ -27,18 +27,14 @@ const weatherContainer = document.querySelector(".current-weather-container");
 const time = document.querySelector(".time");
 let tempToggle = document.getElementById("temp-unit");
 
-
-
 let citiesData = [];
 let tempUnit = [];
 
 let temp = {
-    unit: "celsius"
+    unit: "celsius",
+    checked: false
 }
 
-let distance = {
-    unit: "km"
-}
 
 // tempUnit.push(temp);
 // localStorage.setItem('tempUnit', JSON.stringify(tempUnit));
@@ -66,16 +62,22 @@ function CityWeatherData(name, id, icon, currentTemp, realFeel, desc, minTemp, m
 
 
 document.addEventListener("DOMContentLoaded", () => {
+
     if (localStorage.getItem("cityData") === null) {
         citiesData = [];
     } else {
+        temp = JSON.parse(localStorage.getItem("tempObj"));
+        if (temp.checked === true)
+            tempToggle.checked = true;
         citiesData = JSON.parse(localStorage.getItem("cityData"));
+
     }
-    if (temp.unit === "farenheit") {
-        citiesData = citiesData.map(city => {
-            return { ...city, currentTemp: (city.currentTemp * 9 / 5) + 32, minTemp: (city.minTemp * 9 / 5) + 32, maxTemp: (city.maxTemp * 9 / 5) + 32, realFeel: (city.realFeel * 9 / 5) + 32, wind: city.wind * 1.609 };
-        })
-    }
+    // if (temp.unit === "farenheit") {
+    //     citiesData = citiesData.map(city => {
+    //         return { ...city, currentTemp: (city.currentTemp * 9 / 5) + 32, minTemp: (city.minTemp * 9 / 5) + 32, maxTemp: (city.maxTemp * 9 / 5) + 32, realFeel: (city.realFeel * 9 / 5) + 32, wind: city.wind * 1.609 };
+    //     })
+    // }
+
     displayWeatherData();
 })
 
@@ -100,7 +102,8 @@ function getWeatherData(city) {
             }
         })
         .then(data => {
-            let cityData = new CityWeatherData(data.name, data.id, data.weather[0].icon, data.main.temp, data.main.feels_like, data.weather[0].description, data.main.temp_min, data.main.temp_max, data.wind.speed, data.sys.sunset, data.sys.sunrise, data.main.humidity, data.main.pressure, data.visibility, data.clouds.all, data.coord.lon, data.coord.lat, data.timezone);
+            let cityData = new CityWeatherData(data.name, data.id, data.weather[0].icon, data.main.temp, data.main.feels_like, data.weather[0].description, data.main.temp_min, data.main.temp_max, data.wind.speed, data.sys.sunrise, data.sys.sunset, data.main.humidity, data.main.pressure, data.visibility, data.clouds.all, data.coord.lon, data.coord.lat, data.timezone);
+            console.log(data)
 
             if (temp.unit === "farenheit") {
                 cityData.currentTemp = (cityData.currentTemp * 9 / 5) + 32;
@@ -134,7 +137,7 @@ function addToList(city) {
     console.log(city)
     cityDiv.innerHTML = `
     <div class="accordion-header">
-    <div class="remove-button" >
+    <div class="remove-button">
         <i class="fas fa-trash-alt trash" id=${city.id}></i>
     </div>
     <div class="location">
@@ -152,7 +155,7 @@ function addToList(city) {
         <span>RealFeel</span><span class="realfeel-temp"> ${Math.floor(city.realFeel)} &#176;</span>
     </div>
     <div class="description">
-        ${city.desc}
+        ${changeCase(city.desc)}
     </div>
     <div class="chevron-down">
         <i class="fas fa-chevron-down"></i>
@@ -174,11 +177,11 @@ function addToList(city) {
         </div>
         <div class="sunrise details-container">
             <span class="key">Sunrise</span>
-            <span class="value">${getSunRise(city.sunset)}</span>
+            <span class="value">${new Date(city.sunrise * 1000).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}</span>
         </div>
         <div class="sunset details-container">
             <span class="key">Sunset</span>
-            <span class="value">${getSunSet()}</span>
+            <span class="value">${new Date(city.sunset * 1000).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}</span>
         </div>
     </div>
     <div class="right-content">
@@ -256,8 +259,13 @@ tempToggle.addEventListener("click", () => {
 
     if (temp.unit === "celsius") {
         temp.unit = "farenheit"
+        temp.checked = true;
+        localStorage.setItem('tempObj', JSON.stringify(temp));
+
     } else {
         temp.unit = "celsius"
+        temp.checked = false;
+        localStorage.setItem('tempObj', JSON.stringify(temp));
     }
 
     citiesData = citiesData.map(city => {
@@ -303,10 +311,7 @@ function lengthValueWind(value) {
         return Math.floor(value / 1.609);
     } else {
         return Math.floor(value * 1.609);
-
-
     }
-
 }
 
 function lengthUnits(unit) {
