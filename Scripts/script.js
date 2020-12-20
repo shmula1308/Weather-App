@@ -22,6 +22,7 @@ const time = document.querySelector(".time");
 let tempToggle = document.getElementById("temp-unit");
 const clearScreenBtn = document.querySelector(".clear-data");
 
+
 let citiesData = [];
 let tempUnit = [];
 let citiesDisplayed = [];
@@ -218,9 +219,7 @@ function addToList(city) {
 
     const containerEl = document.querySelector(".current-weather-container");
     let allCities = containerEl.querySelectorAll(".city-container");
-    console.log(allCities)
 
-    console.log(allCities)
     createAccordion(allCities, containerEl)
 
 }
@@ -229,7 +228,6 @@ function createAccordion(allCities, containerEl) {
     for (let i = 0; i < allCities.length; i++) {
         allCities[i].addEventListener("click", (ev) => {
             showDetails(ev.currentTarget)
-
             function showDetails(panel) {
                 var openPanel = containerEl.querySelector(".active")
                 if (openPanel) {
@@ -243,6 +241,7 @@ function createAccordion(allCities, containerEl) {
 
 weatherContainer.addEventListener('click', (ev) => {
     if (ev.target.className === "fas fa-trash-alt trash") {
+
         let id = ev.target.id;
         let parentEl = ev.target.parentElement.parentElement.parentElement;
         weatherContainer.removeChild(parentEl);
@@ -331,6 +330,7 @@ function changeCase(weatherDesc) {
 
 
 function getSunRise(timezone, sunrise) {
+    // new Date(city.sunrise * 1000).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' }
     return;
 }
 
