@@ -19,6 +19,7 @@ const searchInput = document.querySelector(".search-field");
 const weatherContainer = document.querySelector(".current-weather-container");
 const time = document.querySelector(".time");
 let tempToggle = document.getElementById("temp-unit");
+const clearScreenBtn = document.querySelector(".clear-data");
 
 let citiesData = [];
 let tempUnit = [];
@@ -30,8 +31,6 @@ let temp = {
 }
 
 
-// tempUnit.push(temp);
-// localStorage.setItem('tempUnit', JSON.stringify(tempUnit));
 
 function CityWeatherData(name, id, icon, currentTemp, realFeel, desc, minTemp, maxTemp, wind, sunrise, sunset, humidity, pressure, visibility, cloudiness, lon, lat, timezone) {
     this.name = name;
@@ -56,6 +55,8 @@ function CityWeatherData(name, id, icon, currentTemp, realFeel, desc, minTemp, m
 
 
 document.addEventListener("DOMContentLoaded", () => {
+    // tempUnit.push(temp);
+    // localStorage.setItem('tempObj', JSON.stringify(tempUnit));
 
     if (localStorage.getItem("cityData") === null) {
         citiesData = [];
@@ -63,11 +64,12 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         citiesDisplayed = JSON.parse(localStorage.getItem("cityDisp"));
         citiesData = JSON.parse(localStorage.getItem("cityData"));
-        temp = JSON.parse(localStorage.getItem("tempObj"));
-        if (temp.checked === true) {
-            tempToggle.checked = true;
-        }
 
+        if (JSON.parse(localStorage.getItem("tempObj") != null)) {
+            if (temp.checked === true) {
+                tempToggle.checked = true;
+            }
+        }
     }
     // if (temp.unit === "farenheit") {
     //     citiesData = citiesData.map(city => {
@@ -134,11 +136,10 @@ function displayWeatherData() {
 
 function addToList(city) {
     let cityDiv = document.createElement("div");
-    cityDiv.classList.add(".city-container");
+    cityDiv.classList.add("city-container");
     cityDiv.style.backgroundColor = "#eee"
     cityDiv.id = city.id;
     cityDiv.style.marginBottom = "1em";
-    console.log(city)
     cityDiv.innerHTML = `
     <div class="accordion-header">
     <div class="remove-button">
@@ -213,7 +214,9 @@ function addToList(city) {
 </div>`;
 
     weatherContainer.appendChild(cityDiv);
+
 }
+
 
 weatherContainer.addEventListener('click', (ev) => {
     if (ev.target.className === "fas fa-trash-alt trash") {
@@ -245,7 +248,7 @@ function generateCurrentTime(timezone) {
     let hours = nd.getHours();
     let minutes = nd.getMinutes();
     let seconds = nd.getSeconds();
-    let amOrPm = hours < 12 ? "AM" : "PM";
+    // let amOrPm = hours < 12 ? "AM" : "PM";
     hours = addZero(hours);
     minutes = addZero(minutes);
     seconds = addZero(seconds);
@@ -291,10 +294,18 @@ tempToggle.addEventListener("click", () => {
 })
 
 
+clearScreenBtn.addEventListener("click", () => {
+    localStorage.clear();
+    weatherContainer.innerHTML = "";
+    citiesData = [];
+    citiesDisplayed = [];
+})
 
 function changeCase(weatherDesc) {
     return weatherDesc.split(" ").map(word => word.charAt(0).toUpperCase().concat(word.slice(1))).join(" ");
 }
+
+
 
 function getSunRise(timezone, sunrise) {
     return;
