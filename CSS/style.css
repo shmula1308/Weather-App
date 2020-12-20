@@ -248,8 +248,7 @@ input[type="checkbox"]:checked::before {
     padding: 0 10px;
     display: none;
 }
-
-.openDetails {
+.current-weather-container .active .accordion-details {
     display: flex;
 }
 

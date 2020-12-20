@@ -14,6 +14,7 @@ searchBox.addListener('places_changed', () => {
         setWeatherData(data, place.formatted_address);
     })
 }) */
+
 const API_KEY = "6fa6c814e35daf0c81290c089a499869";
 const searchInput = document.querySelector(".search-field");
 const weatherContainer = document.querySelector(".current-weather-container");
@@ -215,8 +216,30 @@ function addToList(city) {
 
     weatherContainer.appendChild(cityDiv);
 
+    const containerEl = document.querySelector(".current-weather-container");
+    let allCities = containerEl.querySelectorAll(".city-container");
+    console.log(allCities)
+
+    console.log(allCities)
+    createAccordion(allCities, containerEl)
+
 }
 
+function createAccordion(allCities, containerEl) {
+    for (let i = 0; i < allCities.length; i++) {
+        allCities[i].addEventListener("click", (ev) => {
+            showDetails(ev.currentTarget)
+
+            function showDetails(panel) {
+                var openPanel = containerEl.querySelector(".active")
+                if (openPanel) {
+                    openPanel.classList.remove("active");
+                }
+                panel.classList.add("active");
+            }
+        })
+    }
+}
 
 weatherContainer.addEventListener('click', (ev) => {
     if (ev.target.className === "fas fa-trash-alt trash") {
