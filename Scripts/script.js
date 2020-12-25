@@ -34,6 +34,8 @@ let temp = {           // Object created to keep track when user changes measuri
 }
 
 
+
+
 // An object constructor for each new city displayed on the screen
 function CityWeatherData(name, id, icon, currentTemp, realFeel, desc, minTemp, maxTemp, wind, sunrise, sunset, humidity, pressure, visibility, cloudiness, lon, lat, timezone, dt) {
     this.name = name;
