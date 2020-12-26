@@ -2,10 +2,10 @@
 
 ## Open Weather API
 
-This weather app uses: 
+This weather app uses:
 
 - fetch method to get data from the API
-- Uses local storage to store all the cities that the user has displayed on the screen, so that they appear again 
+- Uses local storage to store all the cities that the user has displayed on the screen, so that they appear again
 - Makes use of higher order functions to update the metric values to imperial and vice versa, when user has clicked the temperature toggle.
 
 - Keeps track of all the changes in the local storage:
@@ -23,5 +23,3 @@ function changeCase(weatherDesc) {
     return weatherDesc.split(" ").map(word => word.charAt(0).toUpperCase().concat(word.slice(1))).join(" ");
 }
 ```
-
-

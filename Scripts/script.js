@@ -1,5 +1,4 @@
 /* Attempted to setup google search box and link it to openweather API but I was unable to setup billing because Kosovo does not appear in the list of country options
-The below code works though!
 const searchInput = document.querySelector(".search-field");
 const searchBox = new google.maps.places.SearchBox(searchInput);
 const API_KEY = "6fa6c814e35daf0c81290c089a499869";
@@ -22,6 +21,7 @@ const time = document.querySelector(".time");
 const tempToggle = document.getElementById("temp-unit");
 const clearScreenBtn = document.querySelector(".clear-data");
 const clearScreenMobileBtn = document.querySelector(".clear-data-mobile")
+let activeId;
 
 
 let citiesData = [];
@@ -32,9 +32,6 @@ let temp = {           // Object created to keep track when user changes measuri
     unit: "celsius",
     checked: false
 }
-
-
-
 
 // An object constructor for each new city displayed on the screen
 function CityWeatherData(name, id, icon, currentTemp, realFeel, desc, minTemp, maxTemp, wind, sunrise, sunset, humidity, pressure, visibility, cloudiness, lon, lat, timezone, dt) {
@@ -160,6 +157,10 @@ function addToList(city) {
     let cityDiv = document.createElement("div");
     cityDiv.classList.add("city-container");
     cityDiv.id = city.id;
+    if (cityDiv.id === activeId) {
+        cityDiv.classList.add("active");                          /* When user clicks the tempToggle, the screen is refreshed, closing the previously opened accordion element.
+                                                                   By checking the id of the city here we add the active class back to the element that was previously opened in accordion */
+    }
     cityDiv.innerHTML = `
     <div class="accordion-header">
     <div class="remove-button">
@@ -173,8 +174,7 @@ function addToList(city) {
         <img class="weather-icon" src="Icons/${city.icon}.png">
     </div>
     <div class="temp">
-        ${Math.floor(city.currentTemp)
-        }&#176;
+        ${Math.floor(city.currentTemp)}&#176;
     </div>
     <div class="realfeel">
         <span>RealFeel</span><span class="realfeel-temp"> ${Math.floor(city.realFeel)} &#176;</span>
@@ -250,6 +250,7 @@ function addToList(city) {
 function createAccordion(allCities, containerEl) {
     for (let i = 0; i < allCities.length; i++) {
         allCities[i].addEventListener("click", (ev) => {
+            activeId = ev.currentTarget.id;
             showDetails(ev.currentTarget)
             function showDetails(panel) {
                 var openPanel = containerEl.querySelector(".active")
@@ -257,7 +258,7 @@ function createAccordion(allCities, containerEl) {
                     openPanel.classList.remove("active");
                 }
                 panel.classList.add("active");
-                console.log(panel)
+
             }
         })
     }
