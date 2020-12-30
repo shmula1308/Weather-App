@@ -24,3 +24,4 @@ function changeCase(weatherDesc) {
     return weatherDesc.split(" ").map(word => word.charAt(0).toUpperCase().concat(word.slice(1))).join(" ");
 }
 ```
+You can check it out here: https://shmula1308.github.io/Weather-App/
